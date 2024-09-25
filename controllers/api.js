@@ -11,7 +11,25 @@ const getBooks = async (req, res) =>{
     })
 }
 
+const getRecomendationBooks = async(req, res) =>{
+
+    const { emotion } = req.params;    
+    const books = await Book.find({ emotions: { $in: [emotion] } }).limit(20);
+
+    if (books.length === 0) {
+        return res.status(404).json({ message: 'No se encontraron libros con esa emoción' });
+      };
+
+      res.status(200).json({
+        message: "Query executed successfully",
+        results: books 
+    })
+    
+
+}
+
 
 module.exports ={
-    getBooks
+    getBooks,
+    getRecomendationBooks
 }
