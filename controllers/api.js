@@ -11,7 +11,7 @@ const getBooks = async (req, res) =>{
     })
 }
 
-const getRecomendationBooks = async(req, res) =>{
+const getRecommendationBooks = async(req, res) =>{
 
     const { emotion } = req.params;    
     const books = await Book.find({ emotions: { $in: [emotion] } }).limit(20);
@@ -28,8 +28,32 @@ const getRecomendationBooks = async(req, res) =>{
 
 }
 
+const getRandomRecommendationBook = async (req, res) =>{
+    const { emotion } = req.params;    
+    const books = await Book.find({ emotions: { $in: [emotion] } })
+
+    if (books.length === 0) {
+        return res.status(404).json({ message: 'No se encontraron libros con esa emoción' });
+      };
+    
+    const randomIndex = Math.floor(Math.random() * books.length);
+
+    const randomBook = books[randomIndex];
+
+    res.status(200).json({
+        message: "Query executed successfully",
+        results: randomBook 
+    })
+
+
+
+
+
+}
+
 
 module.exports ={
     getBooks,
-    getRecomendationBooks
+    getRecommendationBooks, 
+    getRandomRecommendationBook
 }
