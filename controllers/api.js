@@ -37,10 +37,36 @@ const getRandomRecommendationBook = async (req, res) => {
   const randomIndex = Math.floor(Math.random() * books.length);
 
   const randomBook = books[randomIndex];
+  console.log(
+    "🚀 ~ getRandomRecommendationBook ~ randomBook:",
+    randomBook.isbn
+  );
+
+  let imageURL = "";
+
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/books/v1/volumes?q=isbn:${randomBook.isbn}`
+    );
+    const data = await response.json();
+
+    imageURL = data.items[0].volumeInfo.imageLinks.thumbnail;
+  } catch (error) {
+    //La peticion que se ha hecho es incorrecta en principio
+    res.status(400).json({
+      message: `Error fetching book from Google API: ${error.message}`,
+    });
+  }
+
+  // Convertir el documento de Mongoose en un objeto plano
+  const bookObject = randomBook.toObject();
+
+  // Agregar la URL de la imagen al objeto plano
+  bookObject.imageURL = imageURL;
 
   res.status(200).json({
     message: "Query executed successfully",
-    results: [randomBook],
+    results: [ bookObject ],
   });
 };
 
@@ -51,14 +77,6 @@ const postBook = async (req, res) => {
   }
 
   const { title, isbn, price, description, emotions } = req.body;
-  console.log(
-    "🚀 ~ postBook ~ title, isbn, price, description, emotions:",
-    title,
-    isbn,
-    price,
-    description,
-    emotions
-  );
 
   try {
     const createdBook = await Book.create({
