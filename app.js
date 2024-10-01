@@ -20,6 +20,9 @@ const PORT = process.env.PORT || 3000;
 // Usamos el middleware morgan para loguear las peticiones del cliente
 app.use(morgan('tiny'));
 
+//Para que lea los json
+app.use(express.json());
+
 app.use('/api', apiRoutes);
 
 async function connectDB() {

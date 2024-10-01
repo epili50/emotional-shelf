@@ -1,59 +1,89 @@
-const Book = require('../models/book.model');
+const Book = require("../models/book.model");
+const { validationResult } = require("express-validator");
 
+const getBooks = async (req, res) => {
+  const books = await Book.find().limit(20);
 
-const getBooks = async (req, res) =>{
+  res.status(200).json({
+    message: "Query executed successfully",
+    results: books,
+  });
+};
 
-    const books  = await Book.find().limit(20);
+const getRecommendationBooks = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    res.status(200).json({
-        message: "Query executed successfully",
-        results: books 
-    })
-}
+  const { emotion } = req.params;
+  const books = await Book.find({ emotions: { $in: [emotion] } }).limit(20);
 
-const getRecommendationBooks = async(req, res) =>{
+  res.status(200).json({
+    message: "Query executed successfully",
+    results: books,
+  });
+};
 
-    const { emotion } = req.params;    
-    const books = await Book.find({ emotions: { $in: [emotion] } }).limit(20);
+const getRandomRecommendationBook = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    if (books.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron libros con esa emoción' });
-      };
+  const { emotion } = req.params;
+  const books = await Book.find({ emotions: { $in: [emotion] } });
 
-      res.status(200).json({
-        message: "Query executed successfully",
-        results: books 
-    })
-    
+  const randomIndex = Math.floor(Math.random() * books.length);
 
-}
+  const randomBook = books[randomIndex];
 
-const getRandomRecommendationBook = async (req, res) =>{
-    const { emotion } = req.params;    
-    const books = await Book.find({ emotions: { $in: [emotion] } })
+  res.status(200).json({
+    message: "Query executed successfully",
+    results: randomBook,
+  });
+};
 
-    if (books.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron libros con esa emoción' });
-      };
-    
-    const randomIndex = Math.floor(Math.random() * books.length);
+const postBook = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    const randomBook = books[randomIndex];
+  const { title, isbn, price, description, emotions } = req.body;
+  console.log(
+    "🚀 ~ postBook ~ title, isbn, price, description, emotions:",
+    title,
+    isbn,
+    price,
+    description,
+    emotions
+  );
 
-    res.status(200).json({
-        message: "Query executed successfully",
-        results: randomBook 
-    })
+  try {
+    const createdBook = await Book.create({
+      title,
+      isbn,
+      price,
+      description,
+      emotions,
+    });
 
+    res.status(201).json({
+      message: "Book created successfully",
+      bookId: createdBook._id,
+    });
+  } catch (error) {
+    //La peticion que se ha hecho es incorrecta en principio
+    res.status(400).json({
+      message: `Could not create the book. Validation faile ${error.message}`,
+    });
+  }
+};
 
-
-
-
-}
-
-
-module.exports ={
-    getBooks,
-    getRecommendationBooks, 
-    getRandomRecommendationBook
-}
+module.exports = {
+  getBooks,
+  getRecommendationBooks,
+  getRandomRecommendationBook,
+  postBook,
+};
