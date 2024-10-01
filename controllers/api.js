@@ -40,7 +40,7 @@ const getRandomRecommendationBook = async (req, res) => {
 
   res.status(200).json({
     message: "Query executed successfully",
-    results: randomBook,
+    results: [randomBook],
   });
 };
 

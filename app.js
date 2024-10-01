@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
+const cors = require('cors');
+
 
 // rutas de la REST API
 const apiRoutes = require('./routes/api.js');
@@ -22,6 +24,9 @@ app.use(morgan('tiny'));
 
 //Para que lea los json
 app.use(express.json());
+
+// Permitir solicitudes de cualquier origen
+app.use(cors());
 
 app.use('/api', apiRoutes);
 
