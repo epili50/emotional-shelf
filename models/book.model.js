@@ -11,6 +11,7 @@ const bookSchema = new Schema({
     type: String,
     required: true,
     match: /^[0-9]{13}$/,
+    
   },
 
   price:{
@@ -34,7 +35,14 @@ const bookSchema = new Schema({
   emotions: {
     type: [String],
     required: true,
-    enum: ['Inspiration', 'Curiostity', 'Espacism', 'Nostalgia', 'Happiness', 'Sadness']
+    enum: ['Inspiration', 'Curiostity', 'Espacism', 'Nostalgia', 'Happiness', 'Sadness'],
+    validate: {
+      validator: function (emotions) { // cuando se intente crear el documento, 'emotions' va a valer el array de emociones que le pasamos en el POST
+          return emotions.length > 0
+      },
+      message: 'There must be at least one emotion in the list'
+  }
+
   }
 
 });
