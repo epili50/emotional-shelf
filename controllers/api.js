@@ -37,10 +37,6 @@ const getRandomRecommendationBook = async (req, res) => {
   const randomIndex = Math.floor(Math.random() * books.length);
 
   const randomBook = books[randomIndex];
-  console.log(
-    "🚀 ~ getRandomRecommendationBook ~ randomBook:",
-    randomBook.isbn
-  );
 
   let imageURL = "";
 
@@ -49,6 +45,14 @@ const getRandomRecommendationBook = async (req, res) => {
       `https://www.googleapis.com/books/v1/volumes?q=isbn:${randomBook.isbn}`
     );
     const data = await response.json();
+
+    //Por si el libro no esta
+    if(data.totalItems==0){
+      imageURL = "https://placehold.co/600x400";
+    } else {
+        imageURL = data.items[0].volumeInfo.imageLinks.thumbnail;
+       
+    }
 
     imageURL = data.items[0].volumeInfo.imageLinks.thumbnail;
   } catch (error) {
